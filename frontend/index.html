@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Chat</title>
+</head>
+<body>
+  <script>
+    if (localStorage.getItem("access_token")) {
+      window.location.href = "/static/chat.html";
+    } else {
+      window.location.href = "/static/login.html";
+    }
+  </script>
+</body>
+</html>

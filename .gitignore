@@ -1,0 +1,9 @@
+*.gguf
+*.pyc
+__pycache__/
+venv/
+.venv/
+.env
+*.egg-info/
+dist/
+.DS_Store

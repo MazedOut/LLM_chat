@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — LLM Chat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+      color: #111;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #4f6ef7; }
+
+    button {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.88; }
+
+    .btn-primary { background: #4f6ef7; color: #fff; margin-bottom: 10px; }
+
+    .btn-github {
+      background: #24292e;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .divider {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.8rem;
+      margin: 14px 0;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .footer a { color: #4f6ef7; text-decoration: none; }
+
+    .error {
+      background: #fff0f0;
+      color: #c0392b;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sign in</h1>
+
+    <div class="error" id="error-msg"></div>
+
+    <label>Username</label>
+    <input type="text" id="username" placeholder="your username">
+
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••">
+
+    <button class="btn-primary" id="login-btn">Log in</button>
+
+    <div class="divider">or</div>
+
+    <button class="btn-github" onclick="window.location.href='/auth/github'">
+      <svg height="18" viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+          0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+          -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+          .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+          -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
+          .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+          .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+          0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+      Continue with GitHub
+    </button>
+
+    <div class="footer">
+      No account? <a href="/static/register.html">Register</a>
+    </div>
+  </div>
+
+  <script>
+    const errorMsg = document.getElementById("error-msg");
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = "block";
+    }
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!username || !password) {
+        showError("Please fill in all fields.");
+        return;
+      }
+
+      const res = await fetch("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        window.location.href = "/static/chat.html";
+      } else {
+        const err = await res.json();
+        showError(err.detail || "Login failed.");
+      }
+    });
+
+    document.getElementById("password").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("login-btn").click();
+    });
+  </script>
+</body>
+</html>
