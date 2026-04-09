@@ -2,26 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>LLM Chat</title>
+  <title>Okayish Chat</title>
+  <link rel="icon" type="image/svg+xml" href="/static/squirrel.svg">
   <style>
     body {
       margin: 0;
-      background: #07051a;
+      background: #0d1b2a;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
     }
-
-    /* tiny loading pulse so it doesn't flash blank */
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 8px; height: 8px;
       border-radius: 50%;
-      background: #a78bfa;
+      background: #2dd4bf;
       animation: pulse 0.9s ease-in-out infinite;
     }
-
     @keyframes pulse {
       0%, 100% { opacity: 0.3; transform: scale(0.9); }
       50%       { opacity: 1;   transform: scale(1.1); }
@@ -31,7 +28,6 @@
 <body>
   <div class="dot"></div>
   <script>
-    // redirect based on whether a token is stored
     if (localStorage.getItem("access_token")) {
       window.location.href = "/static/chat.html";
     } else {
