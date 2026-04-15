@@ -11,68 +11,58 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:         #0d1b2a;
-      --topbar-bg:  #0a1520;
-      --surface:    #112233;
-      --surface2:   #0f1e30;
-      --border:     rgba(45,212,191,0.12);
-      --teal:       #2dd4bf;
-      --teal-dark:  #0f766e;
-      --azure:      #60a5fa;
-      --text:       #e2f0ff;
-      --muted:      rgba(148,196,222,0.55);
-      --dim:        rgba(148,196,222,0.25);
-      --user-bubble:#0f766e;
-      --assist-bg:  rgba(45,212,191,0.06);
+      --bg:          #0d1b2a;
+      --topbar-bg:   #0a1520;
+      --surface2:    #0f1e30;
+      --border:      rgba(45,212,191,0.12);
+      --teal:        #2dd4bf;
+      --teal-dark:   #0f766e;
+      --text:        #e2f0ff;
+      --muted:       rgba(148,196,222,0.55);
+      --dim:         rgba(148,196,222,0.25);
+      --user-bubble: #0f766e;
+      --assist-bg:   rgba(45,212,191,0.06);
     }
 
     html, body {
-      height: 100%; font-family: 'Inter', sans-serif;
-      background: var(--bg); color: var(--text);
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       overflow: hidden;
     }
 
     .app {
-      display: flex; flex-direction: column;
-      height: 100vh; overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    /* ── Top navigation bar ── */
     .topbar {
       background: var(--topbar-bg);
       border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       flex-shrink: 0;
       z-index: 10;
     }
 
-    /* first row: logo + user info */
     .topbar-row1 {
-      display: flex; align-items: center;
+      display: flex;
+      align-items: center;
       justify-content: space-between;
       padding: 10px 18px;
       border-bottom: 1px solid var(--border);
     }
 
-    .brand {
-      display: flex; align-items: center; gap: 9px;
-      text-decoration: none;
-    }
-
+    .brand { display: flex; align-items: center; gap: 9px; }
     .brand img { width: 26px; height: 26px; }
+    .brand-name { font-size: 0.95rem; font-weight: 600; color: var(--teal); }
 
-    .brand-name {
-      font-size: 0.95rem; font-weight: 600;
-      color: var(--teal); letter-spacing: 0.01em;
-    }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
 
-    .topbar-right {
-      display: flex; align-items: center; gap: 14px;
-    }
-
-    #username-label {
-      font-size: 0.82rem; color: var(--muted);
-    }
+    #username-label { font-size: 0.82rem; color: var(--muted); }
 
     #logout-btn {
       background: none; border: none;
@@ -83,42 +73,26 @@
     }
     #logout-btn:hover { color: #fca5a5; background: rgba(239,68,68,0.08); }
 
-    /* second row: chat tabs + new chat */
     .topbar-row2 {
       display: flex; align-items: center;
-      padding: 0 14px;
-      gap: 4px;
-      overflow-x: auto;
-      scrollbar-width: none;
+      padding: 0 14px; gap: 4px;
+      overflow-x: auto; scrollbar-width: none;
       min-height: 42px;
     }
     .topbar-row2::-webkit-scrollbar { display: none; }
 
     .chat-tab {
       display: flex; align-items: center; gap: 6px;
-      padding: 6px 12px;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 0.83rem;
-      color: var(--muted);
-      white-space: nowrap;
-      flex-shrink: 0;
-      max-width: 160px;
+      padding: 6px 12px; border-radius: 7px;
+      cursor: pointer; font-size: 0.83rem;
+      color: var(--muted); white-space: nowrap;
+      flex-shrink: 0; max-width: 160px;
       transition: background 0.15s, color 0.15s;
-      position: relative;
     }
-
     .chat-tab:hover { background: rgba(45,212,191,0.07); color: var(--text); }
+    .chat-tab.active { background: rgba(45,212,191,0.12); color: var(--teal); }
 
-    .chat-tab.active {
-      background: rgba(45,212,191,0.12);
-      color: var(--teal);
-    }
-
-    .tab-title {
-      overflow: hidden; text-overflow: ellipsis;
-      white-space: nowrap; flex: 1;
-    }
+    .tab-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
     .tab-close {
       background: none; border: none;
@@ -126,7 +100,6 @@
       font-size: 0.9rem; line-height: 1;
       padding: 0 1px; border-radius: 3px;
       visibility: hidden;
-      transition: color 0.15s;
     }
     .chat-tab:hover .tab-close { visibility: visible; }
     .tab-close:hover { color: #fca5a5; }
@@ -140,47 +113,27 @@
       color: var(--teal);
       font-family: 'Inter', sans-serif;
       font-size: 0.82rem; font-weight: 500;
-      cursor: pointer;
-      margin-left: 4px;
+      cursor: pointer; margin-left: 4px;
       transition: background 0.15s, transform 0.12s;
       white-space: nowrap;
     }
     #new-chat-btn:hover { background: rgba(45,212,191,0.18); transform: translateY(-1px); }
 
-    .no-chats-msg {
-      font-size: 0.8rem; color: var(--dim);
-      padding: 0 8px; white-space: nowrap;
-    }
+    .no-chats-msg { font-size: 0.8rem; color: var(--dim); padding: 0 8px; white-space: nowrap; }
 
-    /* ── Main chat area ── */
     .main {
       flex: 1; display: flex; flex-direction: column;
       overflow: hidden; background: var(--bg);
     }
 
-    /* active chat name strip */
     .chat-header {
       padding: 12px 20px;
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
-      background: var(--surface2);
-      flex-shrink: 0;
+      background: var(--surface2); flex-shrink: 0;
     }
 
-    #chat-title {
-      font-size: 0.9rem; font-weight: 500;
-      color: var(--muted);
-    }
-
-    .header-right {
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .stream-toggle {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 0.78rem; color: var(--dim); cursor: pointer;
-    }
-    .stream-toggle input { cursor: pointer; accent-color: var(--teal); }
+    #chat-title { font-size: 0.9rem; font-weight: 500; color: var(--muted); }
 
     #refresh-indicator {
       font-size: 0.75rem; color: var(--teal);
@@ -188,12 +141,10 @@
     }
     #refresh-indicator.show { opacity: 1; }
 
-    /* messages */
     #messages {
       flex: 1; overflow-y: auto;
       padding: 24px 20px;
-      display: flex; flex-direction: column;
-      gap: 14px;
+      display: flex; flex-direction: column; gap: 14px;
       scrollbar-width: thin;
       scrollbar-color: rgba(45,212,191,0.2) transparent;
     }
@@ -205,24 +156,17 @@
       align-items: center; justify-content: center;
       gap: 10px; color: var(--dim);
     }
-
-    .placeholder img { width: 48px; height: 48px; opacity: 0.4; }
+    .placeholder img { width: 48px; height: 48px; opacity: 0.35; }
     .placeholder span { font-size: 0.9rem; }
 
-    .message {
-      display: flex; flex-direction: column;
-      max-width: 70%;
-    }
+    .message { display: flex; flex-direction: column; max-width: 70%; }
     .message.user { align-self: flex-end; align-items: flex-end; }
     .message.assistant { align-self: flex-start; align-items: flex-start; }
 
     .bubble {
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      word-break: break-word;
-      white-space: pre-wrap;
+      padding: 10px 14px; border-radius: 14px;
+      font-size: 0.9rem; line-height: 1.6;
+      word-break: break-word; white-space: pre-wrap;
     }
 
     .message.user .bubble {
@@ -238,16 +182,9 @@
       border-bottom-left-radius: 4px;
     }
 
-    .msg-time {
-      font-size: 0.7rem; color: var(--dim);
-      margin-top: 3px; padding: 0 3px;
-    }
+    .msg-time { font-size: 0.7rem; color: var(--dim); margin-top: 3px; padding: 0 3px; }
 
-    /* typing dots */
-    .typing-dots {
-      display: flex; gap: 4px; align-items: center;
-      padding: 2px 0;
-    }
+    .typing-dots { display: flex; gap: 4px; align-items: center; padding: 2px 0; }
     .typing-dots span {
       width: 6px; height: 6px; border-radius: 50%;
       background: var(--teal); opacity: 0.5;
@@ -255,12 +192,12 @@
     }
     .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
     .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
     @keyframes blink {
       0%,80%,100% { opacity: 0.25; transform: scale(0.8); }
       40% { opacity: 1; transform: scale(1); }
     }
 
-    /* cursor for typewriter */
     .cursor {
       display: inline-block; width: 2px; height: 1em;
       background: var(--teal); margin-left: 1px;
@@ -269,7 +206,6 @@
     }
     @keyframes blink-cursor { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-    /* input area */
     .input-area {
       padding: 14px 20px;
       border-top: 1px solid var(--border);
@@ -311,7 +247,6 @@
 <body>
 <div class="app">
 
-  <!-- top bar -->
   <div class="topbar">
     <div class="topbar-row1">
       <div class="brand">
@@ -323,23 +258,13 @@
         <button id="logout-btn">Log out</button>
       </div>
     </div>
-    <div class="topbar-row2" id="chat-tabs">
-      <span class="no-chats-msg" id="no-chats-msg">No chats yet</span>
-      <button id="new-chat-btn">+ New Chat</button>
-    </div>
+    <div class="topbar-row2" id="chat-tabs"></div>
   </div>
 
-  <!-- main -->
   <div class="main">
     <div class="chat-header">
       <span id="chat-title">Select or start a chat</span>
-      <div class="header-right">
-        <span id="refresh-indicator">↻ refreshing</span>
-        <label class="stream-toggle">
-          <input type="checkbox" id="stream-toggle" checked>
-          Streaming
-        </label>
-      </div>
+      <span id="refresh-indicator">↻ refreshing</span>
     </div>
 
     <div id="messages">
@@ -357,14 +282,13 @@
 
 </div>
 <script>
-  let accessToken  = localStorage.getItem("access_token");
-  let refreshToken = localStorage.getItem("refresh_token");
-  let currentChatId    = null;
-  let chats            = [];
-  let waitingForReply  = false;
+  let accessToken     = localStorage.getItem("access_token");
+  let refreshToken    = localStorage.getItem("refresh_token");
+  let currentChatId   = null;
+  let chats           = [];
+  let waitingForReply = false;
   let autoRefreshTimer = null;
 
-  // pick up tokens from github oauth redirect
   const params = new URLSearchParams(window.location.search);
   if (params.get("access_token")) {
     accessToken  = params.get("access_token");
@@ -376,7 +300,6 @@
 
   if (!accessToken) window.location.href = "/static/login.html";
 
-  // all API calls go through here so token refresh is automatic
   async function apiFetch(url, options = {}) {
     options.headers = options.headers || {};
     options.headers["Authorization"] = `Bearer ${accessToken}`;
@@ -384,7 +307,6 @@
       options.headers["Content-Type"] = "application/json";
 
     let res = await fetch(url, options);
-
     if (res.status === 401) {
       const ok = await tryRefresh();
       if (!ok) { logout(); return null; }
@@ -415,7 +337,6 @@
     window.location.href = "/static/login.html";
   }
 
-  // load chats + username on startup
   async function loadChats() {
     const res = await apiFetch("/chats");
     if (!res) return;
@@ -431,15 +352,11 @@
 
   function renderTabs() {
     const container = document.getElementById("chat-tabs");
-    // clear existing tabs (keep the new-chat button)
     container.innerHTML = "";
-
-    const noMsg = document.getElementById("no-chats-msg");
 
     if (chats.length === 0) {
       const empty = document.createElement("span");
       empty.className = "no-chats-msg";
-      empty.id = "no-chats-msg";
       empty.textContent = "No chats yet";
       container.appendChild(empty);
     }
@@ -463,7 +380,6 @@
       container.appendChild(tab);
     });
 
-    // always keep new chat button at end
     const btn = document.createElement("button");
     btn.id = "new-chat-btn";
     btn.textContent = "+ New Chat";
@@ -510,7 +426,6 @@
     clearMessages();
     messages.forEach(m => appendMessage(m.role, m.content, m.created_at, false));
     scrollToBottom();
-
     startAutoRefresh(chatId);
   }
 
@@ -522,7 +437,6 @@
       </div>`;
   }
 
-  // typewriter effect for assistant messages
   function typewriterReveal(bubble, text) {
     let i = 0;
     const cursor = document.createElement("span");
@@ -571,7 +485,6 @@
     wrapper.appendChild(time);
     container.appendChild(wrapper);
     scrollToBottom();
-    return bubble;
   }
 
   function appendThinkingBubble() {
@@ -604,29 +517,6 @@
     waitingForReply = true;
 
     appendMessage("user", content, new Date().toISOString(), false);
-
-    const useStreaming = document.getElementById("stream-toggle").checked;
-
-    if (useStreaming) {
-      await sendStreaming(content);
-    } else {
-      await sendNormal(content);
-    }
-
-    // rename tab if still default title
-    const chat = chats.find(c => c.id === currentChatId);
-    if (chat && chat.title === "New Chat") {
-      chat.title = content.slice(0, 28) + (content.length > 28 ? "…" : "");
-      document.getElementById("chat-title").textContent = chat.title;
-      renderTabs();
-    }
-
-    waitingForReply = false;
-    setInputEnabled(true);
-    document.getElementById("msg-input").focus();
-  }
-
-  async function sendNormal(content) {
     const thinking = appendThinkingBubble();
 
     const res = await apiFetch(`/chats/${currentChatId}/messages`, {
@@ -635,60 +525,26 @@
     });
 
     thinking.remove();
+    waitingForReply = false;
 
     if (res && res.ok) {
       const data = await res.json();
       appendMessage("assistant", data.assistant_message.content, data.assistant_message.created_at, true);
-    } else {
-      appendMessage("assistant", "Something went wrong, try again.", null, false);
-    }
-  }
 
-  async function sendStreaming(content) {
-    const placeholder = document.getElementById("placeholder");
-    if (placeholder) placeholder.remove();
-
-    const container = document.getElementById("messages");
-    const wrapper = document.createElement("div");
-    wrapper.className = "message assistant";
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.textContent = "";
-    wrapper.appendChild(bubble);
-    container.appendChild(wrapper);
-    scrollToBottom();
-
-    const res = await apiFetch(`/chats/${currentChatId}/stream`, {
-      method: "POST",
-      body: JSON.stringify({ content }),
-    });
-
-    if (!res || !res.ok) { bubble.textContent = "Something went wrong."; return; }
-
-    const reader  = res.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const lines = decoder.decode(value).split("\n");
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const token = line.slice(6);
-        if (token === "[DONE]") break;
-        bubble.textContent += token;
-        scrollToBottom();
+      const chat = chats.find(c => c.id === currentChatId);
+      if (chat && chat.title === "New Chat") {
+        chat.title = content.slice(0, 28) + (content.length > 28 ? "…" : "");
+        document.getElementById("chat-title").textContent = chat.title;
+        renderTabs();
       }
+    } else {
+      appendMessage("assistant", "Something went wrong, please try again.", null, false);
     }
 
-    // add timestamp after stream finishes
-    const time = document.createElement("div");
-    time.className = "msg-time";
-    time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    wrapper.appendChild(time);
+    setInputEnabled(true);
+    document.getElementById("msg-input").focus();
   }
 
-  // auto-refresh: silently polls for new messages every 15s
   function startAutoRefresh(chatId) {
     stopAutoRefresh();
     autoRefreshTimer = setInterval(async () => {
@@ -716,8 +572,8 @@
   }
 
   function setInputEnabled(enabled) {
-    document.getElementById("msg-input").disabled  = !enabled;
-    document.getElementById("send-btn").disabled   = !enabled;
+    document.getElementById("msg-input").disabled = !enabled;
+    document.getElementById("send-btn").disabled  = !enabled;
   }
 
   function scrollToBottom() {
@@ -725,7 +581,6 @@
     c.scrollTop = c.scrollHeight;
   }
 
-  // auto-grow textarea
   document.getElementById("msg-input").addEventListener("input", function() {
     this.style.height = "auto";
     this.style.height = Math.min(this.scrollHeight, 120) + "px";

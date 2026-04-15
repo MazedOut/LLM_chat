@@ -21,7 +21,12 @@ def get_messages(
     chat = chat_service.get_chat(db, chat_id, user.id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
-    return message_service.get_messages(db, chat_id)
+
+    msgs = message_service.get_messages(db, chat_id)
+
+    if msgs and isinstance(msgs[0], dict):
+        return [MessageOut(**m) for m in msgs]
+    return msgs
 
 
 @router.post("/{chat_id}/messages")

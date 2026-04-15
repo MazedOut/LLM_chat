@@ -1,153 +1,219 @@
-# LLM Chat
+# Okayish Chat
 
-A ChatGPT-like web app built with FastAPI, PostgreSQL, Redis, and llama-cpp-python.
+A ChatGPT-style LLM chat app built for the WAD (Web Application Development) course.
+Runs a local GGUF model on CPU — no cloud APIs needed.
 
-## Stack
-
-- **Backend:** FastAPI, MCS architecture (Models → Controllers → Services)
-- **Database:** PostgreSQL with Alembic migrations
-- **Auth:** JWT (access + refresh), GitHub OAuth
-- **Sessions:** Redis (30-day refresh token TTL)
-- **LLM:** llama-cpp-python (local GGUF model, CPU)
-- **Frontend:** SPA — vanilla HTML/CSS/JS, no framework
+**Stack:** Python · FastAPI · PostgreSQL · Redis · llama-cpp-python · plain HTML/JS SPA
 
 ---
 
-## Setup
+## Prerequisites
 
-### 1. Clone and install dependencies
+Before anything else, make sure you have these installed:
+
+- [Python 3.11+](https://www.python.org/downloads/) — check "Add to PATH" during install
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — needed for PostgreSQL and Redis
+- [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) — needed to compile llama-cpp-python on Windows (select "Desktop development with C++")
+
+---
+
+## Docker Setup (PostgreSQL + Redis)
+
+The app uses two Docker containers instead of local database installs.
+Open Docker Desktop first and wait for **Engine running** (green dot, bottom-left).
+
+### First time — create the containers
 
 ```bash
+# PostgreSQL
+docker run -d --name llm-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=password \
+  -e POSTGRES_DB=llm_chat \
+  -p 5432:5432 postgres
+
+# Redis
+docker run -d --name llm-redis -p 6379:6379 redis
+```
+
+### Every time after restarting your PC
+
+The containers stop when Docker closes. Start them again with:
+
+```bash
+docker start llm-postgres
+docker start llm-redis
+```
+
+Verify both are running:
+
+```bash
+docker ps
+```
+
+You should see `llm-postgres` (port 5432) and `llm-redis` (port 6379) listed with status **Up**.
+
+---
+
+## Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/your-username/okayish-chat.git
+cd okayish-chat
+
+# Create and activate virtual environment
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+
+# Install dependencies (llama-cpp-python takes a few minutes)
 pip install -r requirements.txt
 ```
 
-### 2. Configure environment
+If `llama-cpp-python` fails to install, run this first then retry:
+
+```bash
+pip install llama-cpp-python --prefer-binary
+pip install -r requirements.txt
+```
+
+---
+
+## Configuration
+
+Copy `.env.example` to `.env` and fill in your values:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and fill in your values:
+Open `.env` and edit:
 
-```
-DATABASE_URL=postgresql://user:password@localhost:5432/llm_chat
+```env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/llm_chat
 REDIS_URL=redis://localhost:6379
-SECRET_KEY=some-long-random-string
-GITHUB_CLIENT_ID=...
-GITHUB_CLIENT_SECRET=...
+SECRET_KEY=<generate below>
+GITHUB_CLIENT_ID=<from GitHub OAuth app>
+GITHUB_CLIENT_SECRET=<from GitHub OAuth app>
 GITHUB_REDIRECT_URI=http://localhost:8000/auth/github/callback
 ```
 
-To generate a secret key:
+**Generate a secret key:**
+
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-### 3. GitHub OAuth app
-
-Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App.
-
+**GitHub OAuth App** — go to [github.com/settings/developers](https://github.com/settings/developers), create a new OAuth App with:
 - Homepage URL: `http://localhost:8000`
 - Callback URL: `http://localhost:8000/auth/github/callback`
 
-Copy the client ID and secret into `.env`.
+Copy the Client ID and Client Secret into `.env`.
 
-### 4. Start PostgreSQL and Redis
+---
 
-Make sure both are running locally (or via Docker):
+## Add the model
+
+Copy your `.gguf` model file into the project root and rename it to exactly `model.gguf`.
+It should be at the same level as `requirements.txt`.
+
+---
+
+## Running the app
 
 ```bash
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=user -e POSTGRES_DB=llm_chat postgres
-docker run -d -p 6379:6379 redis
-```
+# 1. Make sure Docker containers are running
+docker start llm-postgres && docker start llm-redis
 
-### 5. Run database migrations
+# 2. Activate venv (if not already active)
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # macOS / Linux
 
-```bash
-alembic revision --autogenerate -m "initial"
+# 3. Apply database migrations (first time, or after schema changes)
 alembic upgrade head
-```
 
-### 6. Add a model (optional)
-
-Download a small GGUF model (e.g. TinyLlama) from HuggingFace and place it as `model.gguf` in the project root.
-
-Without the model file the app still runs — the assistant will return a placeholder message.
-
-### 7. Start the server
-
-```bash
+# 4. Start the server
 uvicorn app.main:app --reload
 ```
 
-Open [http://localhost:8000](http://localhost:8000)
+Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ---
 
 ## Project structure
 
 ```
-app/
-  main.py              # FastAPI app, router registration
-  config.py            # Settings from .env
-  database.py          # SQLAlchemy engine + session
-  redis_client.py      # Redis connection
-  dependencies.py      # JWT auth dependency for protected routes
-
-  models/              # SQLAlchemy ORM models
-    user.py
-    chat.py
-    message.py
-
-  schemas/             # Pydantic request/response schemas
-    user.py
-    chat.py
-    message.py
-
-  controllers/         # Route handlers (thin, delegate to services)
-    auth.py
-    chat.py
-    message.py
-
-  services/            # Business logic
-    auth_service.py    # JWT, bcrypt, Redis session management
-    chat_service.py    # CRUD for chats
-    message_service.py # CRUD for messages + calls LLM
-    llm_service.py     # Lazy-loads the GGUF model, runs inference
-
-frontend/
-  index.html           # Redirects to chat or login
-  login.html
-  register.html
-  chat.html            # Main SPA: sidebar + chat window
-
-alembic/               # DB migrations
+okayish_chat/
+├── app/
+│   ├── controllers/        # FastAPI routers (auth, chat, message)
+│   ├── models/             # SQLAlchemy ORM models
+│   ├── schemas/            # Pydantic request/response schemas
+│   ├── services/           # Business logic (auth, LLM, chat, message)
+│   ├── config.py           # Settings loaded from .env
+│   ├── database.py         # SQLAlchemy engine + session
+│   ├── dependencies.py     # JWT auth dependency
+│   ├── redis_client.py     # Redis connection
+│   └── main.py             # App entry point
+├── frontend/               # Static SPA (login, register, chat)
+├── alembic/                # Database migrations
+├── model.gguf              # Local LLM model (not committed to git)
+├── .env                    # Secrets (not committed to git)
+└── requirements.txt
 ```
 
 ---
 
-## Auth flow
+## Architecture
 
-1. **Register / Login** → server returns `access_token` (JWT, 30 min) + `refresh_token` (random, stored in Redis for 30 days)
-2. **Protected requests** → send `Authorization: Bearer <access_token>`
-3. **Token expired** → frontend calls `POST /auth/refresh` with the refresh token → gets new pair (refresh token is rotated on every use)
-4. **GitHub OAuth** → user redirected to GitHub → callback exchanges code → server creates/finds user → redirects to frontend with tokens in query params
+**UI:** SPA (Single-Page Application) — plain HTML/CSS/JS served from `/static`
+
+**Backend pattern:** MCS — Model · Controller · Service
+
+**Auth flow:**
+1. Register or login → receive JWT access token (30 min) + opaque refresh token (30 days)
+2. Refresh token stored in Redis with TTL
+3. On expiry, client calls `/auth/refresh` → old token deleted, new pair issued (rotation)
+4. GitHub OAuth follows the same token flow after the OAuth callback
 
 ---
 
-## API overview
+## API
 
-| Method | Route | Auth | Description |
-|--------|-------|------|-------------|
-| POST | `/auth/register` | — | Register with username + password |
-| POST | `/auth/login` | — | Login, get tokens |
-| POST | `/auth/refresh` | — | Refresh access token |
+Interactive docs available at [http://localhost:8000/docs](http://localhost:8000/docs) once the app is running.
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/auth/register` | — | Register new user |
+| POST | `/auth/login` | — | Login with username + password |
+| POST | `/auth/refresh` | — | Rotate refresh token |
 | GET | `/auth/github` | — | Start GitHub OAuth |
 | GET | `/auth/github/callback` | — | GitHub OAuth callback |
-| GET | `/chats` | ✓ | List user's chats |
-| POST | `/chats` | ✓ | Create a chat |
-| DELETE | `/chats/{id}` | ✓ | Delete a chat |
-| GET | `/chats/{id}/messages` | ✓ | Get messages in a chat |
-| POST | `/chats/{id}/messages` | ✓ | Send a message, get LLM reply |
+| GET | `/auth/me` | 🔒 | Current user profile |
+| GET | `/chats` | 🔒 | List your chats |
+| POST | `/chats` | 🔒 | Create a new chat |
+| DELETE | `/chats/{chat_id}` | 🔒 | Delete a chat |
+| GET | `/chats/{chat_id}/messages` | 🔒 | Get message history |
+| POST | `/chats/{chat_id}/messages` | 🔒 | Send a message |
 
-Interactive API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+---
+
+## Troubleshooting
+
+**`python` not recognized** — reinstall Python and check "Add to PATH"
+
+**`docker` not recognized** — open Docker Desktop from the Start menu and wait for the green dot
+
+**pip fails on llama-cpp-python** — run `pip install llama-cpp-python --prefer-binary`
+
+**"No module named app"** — you're in the wrong folder or venv isn't active
+
+**alembic fails with "connection refused"** — PostgreSQL container isn't running: `docker start llm-postgres`
+
+**LLM replies "[Model not loaded]"** — `model.gguf` is missing from the project root or named incorrectly
+
+**GitHub OAuth error** — check that the callback URL in your GitHub OAuth App settings is exactly `http://localhost:8000/auth/github/callback`
