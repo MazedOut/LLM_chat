@@ -13,6 +13,7 @@ app.include_router(message.router)
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 
+# converted to async def
 @app.get("/")
-def root():
+async def root():
     return RedirectResponse("/static/index.html")

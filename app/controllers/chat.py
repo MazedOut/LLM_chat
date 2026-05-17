@@ -1,7 +1,8 @@
+# cleaned up controller imports
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -12,27 +13,27 @@ from app.services import chat_service
 router = APIRouter(prefix="/chats", tags=["chats"])
 
 
+# converted to async def
 @router.get("", response_model=List[ChatOut])
-def list_chats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    return chat_service.get_user_chats(db, user.id)
+async def list_chats(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await chat_service.get_user_chats(db, user.id)  # calls single service function
 
 
+# converted to async def
 @router.post("", response_model=ChatOut)
-def create_chat(
+async def create_chat(
     data: ChatCreate,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    return chat_service.create_chat(db, user.id, data)
+    return await chat_service.create_chat(db, user.id, data)  # calls single service function
 
 
+# moved error handling to service
 @router.delete("/{chat_id}")
-def delete_chat(
+async def delete_chat(
     chat_id: int,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    chat = chat_service.delete_chat(db, chat_id, user.id)
-    if not chat:
-        raise HTTPException(status_code=404, detail="Chat not found")
-    return {"detail": "Chat deleted"}
+    return await chat_service.delete_chat(db, chat_id, user.id)  # calls single service function

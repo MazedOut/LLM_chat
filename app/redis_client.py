@@ -1,4 +1,6 @@
-import redis
+# switched to async redis client
+import redis.asyncio as aioredis
 from app.config import settings
 
-r = redis.from_url(settings.REDIS_URL, decode_responses=True)
+# using async-compatible redis
+r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
