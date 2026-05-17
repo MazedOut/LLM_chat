@@ -31,4 +31,17 @@ async def send_message(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+<<<<<<< HEAD
     return await message_service.send_message(db, chat_id, user.id, data.content)  # calls single service function
+=======
+    chat = chat_service.get_chat(db, chat_id, user.id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    user_msg, assistant_msg = message_service.send_message(db, chat_id, data.content)
+
+    return {
+        "user_message": MessageOut.model_validate(user_msg),
+        "assistant_message": MessageOut.model_validate(assistant_msg),
+    }
+>>>>>>> 687f7962dc5e993d297690b67e234456724bdee3
